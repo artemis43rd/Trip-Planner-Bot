@@ -3,7 +3,8 @@ target/
 mvnw
 .mvn
 *.iml
-dependency-reduced-pom.xml 
+dependency-reduced-pom.xml
+applicationContext.xml
 
 # VS Code
 .vscode/
