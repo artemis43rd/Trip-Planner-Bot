@@ -19,5 +19,39 @@ public class Trip {
     @Column(nullable = false)
     private String progress;
 
+    // Конструктор по умолчанию
+    public Trip() {}
+
     // Getters and Setters
+    public Integer getTripId() {
+        return tripId;
+    }
+
+    public void setTripId(Integer tripId) {
+        this.tripId = tripId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getNameTrip() {
+        return nameTrip;
+    }
+
+    public void setNameTrip(String nameTrip) {
+        this.nameTrip = nameTrip;
+    }
+
+    public String getProgress() {
+        return progress;
+    }
+
+    public void setProgress(String progress) {
+        this.progress = progress;
+    }
 }

@@ -18,26 +18,25 @@ public class User {
     // Конструктор по умолчанию
     public User() {}
 
-    // Getters
+    // Getters and Setters
     public Long getUserId() {
         return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public Long getTelegramId() {
         return telegramId;
     }
 
-    public Integer getScore() {
-        return score;
-    }
-
-    // Setters
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
     public void setTelegramId(Long telegramId) {
         this.telegramId = telegramId;
+    }
+
+    public Integer getScore() {
+        return score;
     }
 
     public void setScore(Integer score) {

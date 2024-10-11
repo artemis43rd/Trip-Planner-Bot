@@ -29,10 +29,9 @@ public class HelpCommand extends BotCommand {
             helpMessageBuilder.append(botCommand.toString()).append("\n\n");
         }
 
-
-
         SendMessage helpMessage = new SendMessage(chat.getId().toString(), helpMessageBuilder.toString());
         helpMessage.enableHtml(true);
+
         try {
             telegramClient.execute(helpMessage);
         } catch (TelegramApiException e) {

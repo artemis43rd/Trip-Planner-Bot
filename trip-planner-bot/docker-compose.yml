@@ -25,7 +25,6 @@ services:
       POSTGRES_DB: trip_planner
     volumes:
       - postgres-data:/etc/postgresql/16/main/
-      - ./src/main/resources/create.sql:/docker-entrypoint-initdb.d/create.sql
     command: ["postgres", "-c", "log_statement=all"]
     networks:
       - my_network

@@ -29,7 +29,6 @@ public class DatabaseConfig {
         dataSource.setMaxTotal(10);
         dataSource.setMinIdle(2);
         dataSource.setMaxIdle(5);
-        
         return dataSource;
     }
 
@@ -42,7 +41,6 @@ public class DatabaseConfig {
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);
         em.setJpaProperties(hibernateProperties());
-        
         return em;
     }
 

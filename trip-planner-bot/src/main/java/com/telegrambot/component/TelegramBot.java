@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.sql.Timestamp;
 
 
 @Component
@@ -49,9 +48,9 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
         //checkForDeadlines();
     }
 
-    private PointService pointService;
+    /*private PointService pointService;
 
-    /*private void checkForDeadlines() {
+    private void checkForDeadlines() {
         for (var entry : usersChats.entrySet()) {
             Integer telegramId = entry.getKey();
             Long chatId = entry.getValue();
@@ -74,12 +73,6 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
         }
     }*/
 
-
-    @Override
-    public void processInvalidCommandUpdate(Update update) {
-        super.processInvalidCommandUpdate(update);
-    }
-
     @Override
     public boolean filter(Message message) {
         logger.info("Got message: " + message.getText() + " from User: " + message.getFrom().getUserName() + " (" + message.getFrom().getId() + ")");
@@ -88,14 +81,32 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
     }
 
     @Override
-    public void processNonCommandUpdate(Update update) {
-        // Обработка обновлений, которые не являются командами
+    public void processInvalidCommandUpdate(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();
             Long chatId = update.getMessage().getChatId();
 
-            // Используем правильный конструктор SendMessage(chatId, text)
-            SendMessage message = new SendMessage(chatId.toString(), "You sent: " + messageText);
+            // Сообщение о некорректной команде
+            SendMessage message = new SendMessage(chatId.toString(), "Invalid command: " + messageText +
+            " Try /help to see the possible commands");
+
+            try {
+                telegramClient.execute(message);
+            } catch (TelegramApiException e) {
+                logger.error("Error sending message: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    @Override
+    public void processNonCommandUpdate(Update update) {
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            Long chatId = update.getMessage().getChatId();
+
+            // Ответ на произвольное сообщение
+            SendMessage message = new SendMessage(chatId.toString(), "I'm just a bot that will help you record the" +
+            " details of your trip, I can't reply to messages that aren't commands.\n\n" +
+            "If you want to know what I can do, write /help.");
 
             try {
                 telegramClient.execute(message);
