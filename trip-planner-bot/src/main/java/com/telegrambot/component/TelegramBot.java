@@ -6,18 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.extensions.bots.commandbot.CommandLongPollingTelegramBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
-import com.telegrambot.entity.Point;
-import com.telegrambot.service.PointService;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -29,12 +21,11 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
 
     private static final Logger logger = LoggerFactory.getLogger(TelegramBot.class);
 
-    // TODO remove this hack and use db
     private final ConcurrentHashMap<Integer, Long> usersChats;
 
     private final ScheduledExecutorService scheduler;
 
-    private static final int BACKGROUND_TASK_PERIOD = 120;
+    private static final int BACKGROUND_TASK_PERIOD = 60;
 
     public TelegramBot(TelegramClient client, @Value("${bot.name}") String botName) {
         super(client, true, () -> botName);

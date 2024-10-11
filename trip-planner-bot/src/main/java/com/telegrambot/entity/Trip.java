@@ -16,7 +16,7 @@ public class Trip {
     @Column(name = "name_trip", nullable = false)
     private String nameTrip;
 
-    @Column(nullable = false)
+    @Column(name = "progress", nullable = false)
     private String progress;
 
     // Конструктор по умолчанию

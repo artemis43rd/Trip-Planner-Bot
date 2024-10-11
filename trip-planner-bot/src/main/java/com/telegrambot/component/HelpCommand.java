@@ -16,7 +16,7 @@ public class HelpCommand extends BotCommand {
     private final ICommandRegistry commandRegistry;
 
     public HelpCommand(ICommandRegistry commandRegistry) {
-        super("help", "Get all the commands this bot provides");
+        super("help", "Get all the commands this bot provides.");
         this.commandRegistry = commandRegistry;
     }
 

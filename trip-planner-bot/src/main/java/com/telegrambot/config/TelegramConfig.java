@@ -31,6 +31,9 @@ public class TelegramConfig {
     HelpCommand help;
 
     @Autowired
+    ScoreCommand show_score;
+
+    @Autowired
     TelegramBot bot;
 
     @Bean
@@ -42,6 +45,7 @@ public class TelegramConfig {
     public BotSession sessionStart(TelegramBotsLongPollingApplication botsApplication, TelegramBot bot) throws TelegramApiException {
         bot.register(start);
         bot.register(help);
+        bot.register(show_score);
         return botsApplication.registerBot(env.getProperty("token"), bot);
     }
 
