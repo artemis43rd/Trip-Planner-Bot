@@ -40,6 +40,9 @@ public class TelegramConfig {
     ShowTripListCommand show_trips;
 
     @Autowired
+    DeleteTripCommand delete_trip;
+
+    @Autowired
     TelegramBot bot;
 
     @Bean
@@ -54,6 +57,7 @@ public class TelegramConfig {
         bot.register(show_score);
         bot.register(create_trip);
         bot.register(show_trips);
+        bot.register(delete_trip);
         return botsApplication.registerBot(env.getProperty("token"), bot);
     }
 

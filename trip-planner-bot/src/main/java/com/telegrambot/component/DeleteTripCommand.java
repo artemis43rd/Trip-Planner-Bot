@@ -10,12 +10,12 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import com.telegrambot.service.TripService;
 
 @Component
-public class AddTripCommand extends BotCommand {
+public class DeleteTripCommand extends BotCommand {
 
     private final TripService trips;
 
-    public AddTripCommand(TripService trips) {
-        super("create_trip", "Add trip to the Trip-list\nUsage example: /create_trip \"Trip Name\"");
+    public DeleteTripCommand(TripService trips) {
+        super("delete_trip", "Delete trip from the Trip-list\nUsage example: /delete_trip \"Trip Name\"");
         this.trips = trips;
     }
 
@@ -31,14 +31,14 @@ public class AddTripCommand extends BotCommand {
         }
 
         String tripName = strings[0].replaceAll("\"", ""); // Удаление кавычек, если они есть
-        boolean success = trips.createTrip(tripName, user.getId());
+        boolean success = trips.deleteTrip(tripName, user.getId());
 
         StringBuilder builder = new StringBuilder();
         if (success) {
-            builder.append("Trip \"").append(tripName).append("\" has been added to Trip-list");
+            builder.append("Trip \"").append(tripName).append("\" has been deleted from Trip-list");
         } else {
-            builder.append("Trip \"").append(tripName).append("\" hasn't been added to Trip-list.\n")
-                .append("This name for trip is already used");
+            builder.append("Trip \"").append(tripName).append("\" hasn't been deleted from Trip-list.\n")
+                .append("There is no trip with that name");
         }
 
         try {

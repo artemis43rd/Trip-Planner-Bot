@@ -51,4 +51,20 @@ public class TripService {
 			return tripRepository.findTripsByUserAndProgress(user, progress);
 		}
 	}
+
+    @Transactional
+	public boolean deleteTrip(String tripName, long telegramId) {
+		User user = userService.getUser(telegramId);
+		if (user == null) {
+			return false;
+		}
+
+		Trip trip = tripRepository.findByNameAndUser(tripName, user);
+		if (trip == null) {
+			return false;
+		}
+
+		tripRepository.delete(trip);
+		return true;
+	}
 }
