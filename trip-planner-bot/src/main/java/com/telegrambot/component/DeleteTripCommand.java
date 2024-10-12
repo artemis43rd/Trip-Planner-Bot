@@ -36,14 +36,14 @@ public class DeleteTripCommand extends BotCommand {
         StringBuilder builder = new StringBuilder();
         switch (res) {
             case 0:
-                builder.append("Trip \"").append(tripName).append("\" has been deleted to Trip-list");
+                builder.append("Trip \"").append(tripName).append("\" has been deleted from Trip-list");
                 break;
             case 1:
-                builder.append("Trip \"").append(tripName).append("\" hasn't been deleted to Trip-list.\n")
+                builder.append("Trip \"").append(tripName).append("\" hasn't been deleted from Trip-list.\n")
                     .append("There is no trip with that name");
                 break;
             case 2:
-                builder.append("Trip \"").append(tripName).append("\" hasn't been deleted to Trip-list.\n")
+                builder.append("Trip \"").append(tripName).append("\" hasn't been deleted from Trip-list.\n")
                     .append("SQL Query Error");
                 break;
             case 4:

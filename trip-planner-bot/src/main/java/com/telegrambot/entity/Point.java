@@ -26,6 +26,9 @@ public class Point {
     @Column(name = "notes")
     private String notes;
 
+    @Column(name = "visited", nullable = false)
+    private Boolean visited = false;
+
     // Конструктор по умолчанию
     public Point() {}
 
@@ -76,5 +79,13 @@ public class Point {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public Boolean getVisited() {
+        return visited;
+    }
+
+    public void setVisited(Boolean visited) { 
+        this.visited = visited;
     }
 }

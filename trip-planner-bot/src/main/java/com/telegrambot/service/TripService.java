@@ -1,7 +1,9 @@
 package com.telegrambot.service;
 
+import com.telegrambot.entity.Point;
 import com.telegrambot.entity.Trip;
 import com.telegrambot.entity.User;
+import com.telegrambot.repository.PointRepository;
 import com.telegrambot.repository.TripRepository;
 
 import java.util.List;
@@ -15,11 +17,14 @@ public class TripService {
 
     private final UserService userService;
     private final TripRepository tripRepository;
+    private final PointRepository pointRepository; 
 
     @Autowired
-    public TripService(UserService userService, TripRepository tripRepository) {
+    public TripService(UserService userService,
+		TripRepository tripRepository, PointRepository pointRepository) {
         this.userService = userService;
         this.tripRepository = tripRepository;
+        this.pointRepository = pointRepository;
     }
 
     @Transactional
@@ -74,4 +79,10 @@ public class TripService {
 		}
 		return 2;
 	}
+
+	public List<Point> getPointsByTrip(String tripName, long telegramId) {
+		User user = userService.getUser(telegramId);
+		Trip trip = tripRepository.findByNameAndUser(tripName, user);
+        return pointRepository.findAllByTripOrderByDate(trip);
+    }
 }
