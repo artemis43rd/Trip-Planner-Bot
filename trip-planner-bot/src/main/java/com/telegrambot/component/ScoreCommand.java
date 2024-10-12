@@ -23,7 +23,7 @@ public class ScoreCommand extends BotCommand {
     public void execute(TelegramClient telegramClient, User user, Chat chat, String[] strings) {
         StringBuilder builder = new StringBuilder();
 
-        builder.append(user.getFirstName()).append(" your finished trips score is: ").append(users.updateUserScore(user.getId()));
+        builder.append(user.getFirstName()).append(" your finished trips score is: ").append(users.getUserScore(user.getId()));
 
         try {
             telegramClient.execute(new SendMessage(chat.getId().toString(), builder.toString()));

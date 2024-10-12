@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 public class Trip {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "trip_id")
     private Integer tripId;
 
     @ManyToOne

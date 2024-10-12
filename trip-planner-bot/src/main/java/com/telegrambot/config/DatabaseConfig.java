@@ -2,10 +2,12 @@ package com.telegrambot.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.beans.factory.annotation.Value;
 
 import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -14,21 +16,46 @@ import java.util.Properties;
 
 @Configuration
 @EnableJpaRepositories(basePackages = "com.telegrambot.repository")
+@PropertySource("classpath:databases.properties")
 public class DatabaseConfig {
+
+    @Value("${db.driver}")
+    private String driverClassName;
+
+    @Value("${db.url}")
+    private String url;
+
+    @Value("${db.username}")
+    private String username;
+
+    @Value("${db.password}")
+    private String password;
+
+    @Value("${db.pool.initialSize}")
+    private int initialSize;
+
+    @Value("${db.pool.maxTotal}")
+    private int maxTotal;
+
+    @Value("${db.pool.minIdle}")
+    private int minIdle;
+
+    @Value("${db.pool.maxIdle}")
+    private int maxIdle;
 
     @Bean
     public DataSource dataSource() {
         BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("jdbc:postgresql://db:5432/trip_planner");
-        dataSource.setUsername("postgres");
-        dataSource.setPassword("123");
+        dataSource.setDriverClassName(driverClassName);
+        dataSource.setUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
 
         // Настройки пула
-        dataSource.setInitialSize(5);
-        dataSource.setMaxTotal(10);
-        dataSource.setMinIdle(2);
-        dataSource.setMaxIdle(5);
+        dataSource.setInitialSize(initialSize);
+        dataSource.setMaxTotal(maxTotal);
+        dataSource.setMinIdle(minIdle);
+        dataSource.setMaxIdle(maxIdle);
         return dataSource;
     }
 
