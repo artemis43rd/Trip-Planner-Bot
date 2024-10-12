@@ -31,14 +31,27 @@ public class AddTripCommand extends BotCommand {
         }
 
         String tripName = strings[0].replaceAll("\"", ""); // Удаление кавычек, если они есть
-        boolean success = trips.createTrip(tripName, user.getId());
+        int res = trips.createTrip(tripName, user.getId());
 
         StringBuilder builder = new StringBuilder();
-        if (success) {
-            builder.append("Trip \"").append(tripName).append("\" has been added to Trip-list");
-        } else {
-            builder.append("Trip \"").append(tripName).append("\" hasn't been added to Trip-list.\n")
-                .append("This name for trip is already used");
+        switch (res) {
+            case 0:
+                builder.append("Trip \"").append(tripName).append("\" has been added to Trip-list");
+                break;
+            case 1:
+                builder.append("Trip \"").append(tripName).append("\" hasn't been added to Trip-list.\n")
+                    .append("This name for trip is already used");
+                break;
+            case 2:
+                builder.append("Trip \"").append(tripName).append("\" hasn't been added to Trip-list.\n")
+                    .append("SQL Query Error");
+                break;
+            case 4:
+                builder.append("You are not registered yet! Try /start command");
+                break;
+
+            default:
+                break;
         }
 
         try {

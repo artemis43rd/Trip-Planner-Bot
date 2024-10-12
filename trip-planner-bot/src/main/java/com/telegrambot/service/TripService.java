@@ -23,14 +23,14 @@ public class TripService {
     }
 
     @Transactional
-    public boolean createTrip(String tripName, long telegramId) {
+    public int createTrip(String tripName, long telegramId) {
         User user = userService.getUser(telegramId);
 		if (user == null) {
-			return false;
+			return 4;
 		}
 
 		if (tripRepository.isTripExists(tripName, user)) {
-			return false;
+			return 1;
 		}
 
 		Trip trip = new Trip();
@@ -39,7 +39,10 @@ public class TripService {
 		trip.setProgress("planned");
 
 		tripRepository.save(trip);
-		return true;
+		if (tripRepository.isTripExists(tripName, user)) {
+			return 0;
+		}
+		return 2;
 	}
 
 	public List<Trip> getTripsByProgress(String progress, Long chatId) {
@@ -53,18 +56,22 @@ public class TripService {
 	}
 
     @Transactional
-	public boolean deleteTrip(String tripName, long telegramId) {
+	public int deleteTrip(String tripName, long telegramId) {
 		User user = userService.getUser(telegramId);
 		if (user == null) {
-			return false;
+			return 4;
 		}
 
 		Trip trip = tripRepository.findByNameAndUser(tripName, user);
 		if (trip == null) {
-			return false;
+			return 1;
 		}
 
 		tripRepository.delete(trip);
-		return true;
+		trip = tripRepository.findByNameAndUser(tripName, user);
+		if (trip == null) {
+			return 0;
+		}
+		return 2;
 	}
 }

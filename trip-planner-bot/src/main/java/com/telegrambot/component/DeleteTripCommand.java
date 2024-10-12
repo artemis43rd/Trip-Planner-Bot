@@ -31,14 +31,27 @@ public class DeleteTripCommand extends BotCommand {
         }
 
         String tripName = strings[0].replaceAll("\"", ""); // Удаление кавычек, если они есть
-        boolean success = trips.deleteTrip(tripName, user.getId());
+        int res = trips.deleteTrip(tripName, user.getId());
 
         StringBuilder builder = new StringBuilder();
-        if (success) {
-            builder.append("Trip \"").append(tripName).append("\" has been deleted from Trip-list");
-        } else {
-            builder.append("Trip \"").append(tripName).append("\" hasn't been deleted from Trip-list.\n")
-                .append("There is no trip with that name");
+        switch (res) {
+            case 0:
+                builder.append("Trip \"").append(tripName).append("\" has been deleted to Trip-list");
+                break;
+            case 1:
+                builder.append("Trip \"").append(tripName).append("\" hasn't been deleted to Trip-list.\n")
+                    .append("There is no trip with that name");
+                break;
+            case 2:
+                builder.append("Trip \"").append(tripName).append("\" hasn't been deleted to Trip-list.\n")
+                    .append("SQL Query Error");
+                break;
+            case 4:
+                builder.append("You are not registered yet! Try /start command");
+                break;
+
+            default:
+                break;
         }
 
         try {
