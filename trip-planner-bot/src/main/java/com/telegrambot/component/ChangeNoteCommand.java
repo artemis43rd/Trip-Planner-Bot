@@ -17,14 +17,14 @@ import com.telegrambot.service.PointService;
 import com.telegrambot.service.TripService;
 
 @Component
-public class DeletePointCommand extends BotCommand {
+public class ChangeNoteCommand extends BotCommand {
 
     private final TripService trips;
     private final PointService points;
 
-    public DeletePointCommand(PointService points, TripService trips) {
-        super("delete_point", "Delete point from the trip" +
-        "\nUsage example: /delete_point \"Trip Name\" \"Point Name\" \"Date\"");
+    public ChangeNoteCommand(PointService points, TripService trips) {
+        super("change_note", "Set notes for the point" +
+        "\nUsage example: /change_note \"Trip Name\" \"Point Name\" \"Date\" \"Note\"");
         this.points = points;
         this.trips = trips;
     }
@@ -34,7 +34,7 @@ public class DeletePointCommand extends BotCommand {
         if (strings.length == 0) {
             try {
                 telegramClient.execute(new SendMessage(chat.getId().toString(), "Please provide the trip details in the following format:" +
-                    "\n/delete_point \"Trip Name\" \"Point Name\" \"Date\""));
+                    "\n/change_note \"Trip Name\" \"Point Name\" \"Date\" \"Note\""));
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
             }
@@ -51,15 +51,15 @@ public class DeletePointCommand extends BotCommand {
         }
 
         // Проверяем, что все необходимые аргументы были предоставлены
-        if (arguments.size() < 3) {
+        if (arguments.size() < 4) {
             try {
                 telegramClient.execute(new SendMessage(chat.getId().toString(), "Please provide all the required details:\n" +
-                    "\"Trip Name\" \"Point Name\" \"Date\""));
+                    "\"Trip Name\" \"Point Name\" \"Date\" \"Note\""));
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
             }
             return;
-        } else if (arguments.size() > 3) {
+        } else if (arguments.size() > 4) {
             try {
                 telegramClient.execute(new SendMessage(chat.getId().toString(), "Warning! The number of arguments is more than" +
                     "the command can accept, the extra ones will not be used"));
@@ -71,14 +71,15 @@ public class DeletePointCommand extends BotCommand {
         String tripName = arguments.get(0);
         String pointName = arguments.get(1);
         String date = arguments.get(2);
+        String note = arguments.get(3);
 
         StringBuilder builder = new StringBuilder();
         int resTrip = trips.createTrip(tripName, user.getId());
         if (resTrip == 1) {
-            int res = points.deletePoint(tripName, pointName, date, user.getId());
+            int res = points.changeOneParam(tripName, pointName, date, "notes", note, user.getId());
             switch (res) {
                 case 0:
-                    builder.append("The point has been successfully deleted");
+                    builder.append("The note has been successfully changed");
                     break;
 
                 case 1:

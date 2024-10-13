@@ -42,26 +42,31 @@ public class ShowTripDetCommand extends BotCommand {
         if (res == 1) {
             List<Point> points = trips.getPointsByTrip(tripName, user.getId());
 
-            builder.append("Trip: ").append(tripName);
-            int counter = 1;
-            for (Point point : points) {
-                builder.append("\n[").append(counter).append("]\nPoint: ")
-                    .append(point.getNamePoint())
-                    .append("\nDate: ").append(point.getPointDate())
-                    .append("\nTransport: ").append(point.getTransport());
+            if (points.isEmpty()) {
+                builder.append("No points found for this trip.");
 
-                    if (point.getNotes().length() == 0)
-                    {
-                        builder.append("\nNotes: ").append(point.getNotes());
-                    }
+            } else {
+                builder.append("Trip: ").append(tripName);
+                int counter = 1;
+                for (Point point : points) {
+                    builder.append("\n[").append(counter).append("]\nPoint: ")
+                        .append(point.getNamePoint())
+                        .append("\nDate: ").append(point.getPointDate())
+                        .append("\nTransport: ").append(point.getTransport());
 
-                    builder.append("\nVisited: ");
-                    if (point.getVisited()) {
-                        builder.append("✅\n");
-                    } else {
-                        builder.append("❌\n");
-                    }
-                counter++;
+                        if (point.getNotes().length() != 0)
+                        {
+                            builder.append("\nNotes: ").append(point.getNotes());
+                        }
+
+                        builder.append("\nVisited: ");
+                        if (point.getVisited()) {
+                            builder.append("✅\n");
+                        } else {
+                            builder.append("❌\n");
+                        }
+                    counter++;
+                }
             }
         } else if (res == 0) {
             trips.deleteTrip(tripName, user.getId());

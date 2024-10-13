@@ -17,14 +17,14 @@ import com.telegrambot.service.PointService;
 import com.telegrambot.service.TripService;
 
 @Component
-public class DeletePointCommand extends BotCommand {
+public class ChangeVisCommand extends BotCommand {
 
     private final TripService trips;
     private final PointService points;
 
-    public DeletePointCommand(PointService points, TripService trips) {
-        super("delete_point", "Delete point from the trip" +
-        "\nUsage example: /delete_point \"Trip Name\" \"Point Name\" \"Date\"");
+    public ChangeVisCommand(PointService points, TripService trips) {
+        super("set_visited_state", "Set notes for the point" +
+        "\nUsage example: /set_visited_state \"Trip Name\" \"Point Name\" \"Date\"");
         this.points = points;
         this.trips = trips;
     }
@@ -34,7 +34,7 @@ public class DeletePointCommand extends BotCommand {
         if (strings.length == 0) {
             try {
                 telegramClient.execute(new SendMessage(chat.getId().toString(), "Please provide the trip details in the following format:" +
-                    "\n/delete_point \"Trip Name\" \"Point Name\" \"Date\""));
+                    "\n/set_visited_state \"Trip Name\" \"Point Name\" \"Date\""));
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
             }
@@ -75,10 +75,10 @@ public class DeletePointCommand extends BotCommand {
         StringBuilder builder = new StringBuilder();
         int resTrip = trips.createTrip(tripName, user.getId());
         if (resTrip == 1) {
-            int res = points.deletePoint(tripName, pointName, date, user.getId());
+            int res = points.changeOneParam(tripName, pointName, date, "visited", "1", user.getId());
             switch (res) {
                 case 0:
-                    builder.append("The point has been successfully deleted");
+                    builder.append("The note has been successfully changed");
                     break;
 
                 case 1:
@@ -95,6 +95,10 @@ public class DeletePointCommand extends BotCommand {
 
                 case 6:
                     builder.append("Incorrect time format. Try: yyyy-MM-dd HH:mm:ss");
+                    break;
+
+                case 7:
+                    builder.append("Wrong value for visited. Change to 1");
                     break;
 
                 default:

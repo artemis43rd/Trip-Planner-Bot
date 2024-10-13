@@ -18,7 +18,7 @@ import java.sql.Timestamp;
 
 @Service
 public class PointService {
-    
+
     private final TripRepository tripRepository;
     private final PointRepository pointRepository;
     private final UserService userService;
@@ -100,9 +100,55 @@ public class PointService {
 
         Point point = pointRepository.findByNameAndTime(trip, pointName, inputTimestamp);
         pointRepository.delete(point);
+
         if (!pointRepository.isPointExists(trip, pointName, inputTimestamp)) {
 			return 0;
 		}
+
+        return 2;
+    }
+
+    @Transactional
+    public int changeOneParam(String tripName, String pointName, String date,
+                            String type, String value,long telegramId) {
+
+        User user = userService.getUser(telegramId);
+        if (user == null) {
+            return 4;
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime localDateTime;
+        try {
+            localDateTime = LocalDateTime.parse(date, formatter);
+        } catch (DateTimeParseException e) {
+            return 6;
+        }
+        Timestamp inputTimestamp = Timestamp.valueOf(localDateTime);
+
+        Trip trip = tripRepository.findByNameAndUser(tripName, user);
+        if (!pointRepository.isPointExists(trip, pointName, inputTimestamp)) {
+			return 1;
+		}
+
+        Point point = pointRepository.findByNameAndTime(trip, pointName, inputTimestamp);
+        switch (type) {
+            case "notes":
+                point.setNotes(value);
+                pointRepository.save(point);
+                return 0;
+            case "visited":
+                if (value == "1") {
+                    point.setVisited(true);
+                    pointRepository.save(point);
+                    return 0;
+                } else {
+                    return 7;
+                }
+            //if need add more changing parameters
+            default:
+                break;
+        }
 
         return 2;
     }

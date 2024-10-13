@@ -63,6 +63,13 @@ public class AddPointCommand extends BotCommand {
                 throw new RuntimeException(e);
             }
             return;
+        } else if (arguments.size() > 4) {
+            try {
+                telegramClient.execute(new SendMessage(chat.getId().toString(), "Warning! The number of arguments is more than" +
+                    "the command can accept, the extra ones will not be used"));
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         String tripName = arguments.get(0);

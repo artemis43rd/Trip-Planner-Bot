@@ -52,6 +52,12 @@ public class TelegramConfig {
     DeletePointCommand create_point;
 
     @Autowired
+    ChangeNoteCommand change_note;
+
+    @Autowired
+    ChangeVisCommand set_visited_state;
+
+    @Autowired
     TelegramBot bot;
 
     @Bean
@@ -70,6 +76,8 @@ public class TelegramConfig {
         bot.register(show_trip_detail);
         bot.register(delete_point);
         bot.register(create_point);
+        bot.register(change_note);
+        bot.register(set_visited_state);
         return botsApplication.registerBot(env.getProperty("token"), bot);
     }
 
