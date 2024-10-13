@@ -23,7 +23,8 @@ public class HelpCommand extends BotCommand {
     @Override
     public void execute(TelegramClient telegramClient, User user, Chat chat, String[] strings) {
         StringBuilder helpMessageBuilder = new StringBuilder("Help\n");
-        helpMessageBuilder.append("These are the registered commands for this Bot:\n\n");
+        helpMessageBuilder.append("These are the registered commands for this Bot:\n\n" +
+            "Non-command interaction:\nYou can send your location to mark the point as not manually visited\n\n");
 
         for (IBotCommand botCommand : commandRegistry.getRegisteredCommands()) {
             helpMessageBuilder.append(botCommand.toString()).append("\n\n");

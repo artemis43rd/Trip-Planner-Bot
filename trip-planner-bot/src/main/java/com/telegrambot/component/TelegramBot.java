@@ -147,11 +147,19 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
 
     @Override
     public void processNonCommandUpdate(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
+        if (update.hasMessage()) {
             Long chatId = update.getMessage().getChatId();
-            String messageText = update.getMessage().getText();
 
-            if (!handleCoordinates(chatId, messageText)) {
+            if (update.getMessage().hasLocation()) {
+                // Обработка геопозиции
+                double latitude = update.getMessage().getLocation().getLatitude();
+                double longitude = update.getMessage().getLocation().getLongitude();
+
+                // Обработка координат
+                if (handleCoordinates(chatId, latitude, longitude)) { return; }
+            }
+
+            if (update.getMessage().hasText()) {
                 sendResponse(chatId, "I'm just a bot that will help you record the details of your trip, I can't reply to messages that aren't commands.\n\n" +
                     "If you want to know what I can do, write /help.");
             }
@@ -192,26 +200,20 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
         }
     }
 
-    private boolean handleCoordinates(Long chatId, String messageText) {
-        String[] parts = messageText.split(",");
-        if (parts.length == 2) {
-            try {
-                double latitude = Double.parseDouble(parts[0].trim());
-                double longitude = Double.parseDouble(parts[1].trim());
+    private boolean handleCoordinates(Long chatId, double latitude, double longitude) {
+        try {
+            // Создаём экземпляр GeocodingService
+            GeocodingService geocodingService = new GeocodingService(apiKey);
+            String cityName = geocodingService.getCityName(latitude, longitude);
 
-                // Создаём экземпляр GeocodingService
-                GeocodingService geocodingService = new GeocodingService(apiKey);
-                String cityName = geocodingService.getCityName(latitude, longitude);
+            // Проверяем trip со статусом in-progress
+            checkTripWithCoordinates(chatId, cityName);
+            return true; // Успешно обработано
 
-                // Проверяем trip со статусом in-progress
-                checkTripWithCoordinates(chatId, cityName);
-                return true; // Успешно обработано
-
-            } catch (NumberFormatException e) {
-                sendResponse(chatId, "Invalid coordinates format. Please send as: latitude,longitude");
-                return true;
-            }
-        } else { return false; }
+        } catch (Exception e) {
+            sendResponse(chatId, "Error processing location data. Please try again.");
+            return true;
+        }
     }
 
     private void sendTrips(Long chatId, String progress) {

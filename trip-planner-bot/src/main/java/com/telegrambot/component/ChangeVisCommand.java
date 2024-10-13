@@ -23,7 +23,7 @@ public class ChangeVisCommand extends BotCommand {
     private final PointService points;
 
     public ChangeVisCommand(PointService points, TripService trips) {
-        super("set_visited_state", "Set notes for the point" +
+        super("set_visited_state", "Set visited state for the point" +
         "\nUsage example: /set_visited_state \"Trip Name\" \"Point Name\" \"Date\"");
         this.points = points;
         this.trips = trips;
