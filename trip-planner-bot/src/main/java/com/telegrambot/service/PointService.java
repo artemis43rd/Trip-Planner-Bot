@@ -152,4 +152,8 @@ public class PointService {
 
         return 2;
     }
+
+    public void savePoint (Point point) {
+        pointRepository.save(point);
+    }
 }

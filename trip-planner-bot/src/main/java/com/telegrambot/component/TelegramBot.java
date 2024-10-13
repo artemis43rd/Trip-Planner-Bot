@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.extensions.bots.commandbot.CommandLongPollingTelegramBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -23,10 +24,14 @@ import com.telegrambot.entity.Point;
 import com.telegrambot.entity.Trip;
 import com.telegrambot.service.PointService;
 import com.telegrambot.service.TripService;
+import com.telegrambot.service.GeocodingService; // Импортируем новый сервис
 
-
+@PropertySource("classpath:bot.properties")
 @Component
 public class TelegramBot extends CommandLongPollingTelegramBot {
+
+    @Value("${api-key}")
+    private String apiKey;
 
     private static final Logger logger = LoggerFactory.getLogger(TelegramBot.class);
 
@@ -144,9 +149,12 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
     public void processNonCommandUpdate(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
             Long chatId = update.getMessage().getChatId();
-            sendResponse(chatId, "I'm just a bot that will help you record the" +
-                " details of your trip, I can't reply to messages that aren't commands.\n\n" +
-                "If you want to know what I can do, write /help.");
+            String messageText = update.getMessage().getText();
+
+            if (!handleCoordinates(chatId, messageText)) {
+                sendResponse(chatId, "I'm just a bot that will help you record the details of your trip, I can't reply to messages that aren't commands.\n\n" +
+                    "If you want to know what I can do, write /help.");
+            }
         }
 
         if (update.hasCallbackQuery()) {
@@ -184,6 +192,28 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
         }
     }
 
+    private boolean handleCoordinates(Long chatId, String messageText) {
+        String[] parts = messageText.split(",");
+        if (parts.length == 2) {
+            try {
+                double latitude = Double.parseDouble(parts[0].trim());
+                double longitude = Double.parseDouble(parts[1].trim());
+
+                // Создаём экземпляр GeocodingService
+                GeocodingService geocodingService = new GeocodingService(apiKey);
+                String cityName = geocodingService.getCityName(latitude, longitude);
+
+                // Проверяем trip со статусом in-progress
+                checkTripWithCoordinates(chatId, cityName);
+                return true; // Успешно обработано
+
+            } catch (NumberFormatException e) {
+                sendResponse(chatId, "Invalid coordinates format. Please send as: latitude,longitude");
+                return true;
+            }
+        } else { return false; }
+    }
+
     private void sendTrips(Long chatId, String progress) {
         List<Trip> trips = tripService.getTripsByProgress(progress, chatId);
         if (trips.isEmpty()) {
@@ -211,5 +241,36 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
         } catch (TelegramApiException e) {
             logger.error("Error sending message: " + e.getMessage(), e);
         }
+    }
+
+    private void checkTripWithCoordinates(Long chatId, String pointName) {
+        if (pointName == "") {
+            String message = "The locality where you are located has not been found . Try /set_visited_state";
+            sendResponse(chatId, message);
+            return;
+        }
+
+        List<Trip> trips = tripService.getTripsWithProgress("in-progress");
+
+        for (Trip trip : trips) {
+            List<Point> points = tripService.getPointsByTrip(trip.getNameTrip(), trip.getUser().getTelegramId());
+
+            for (Point point : points) {
+                if (point.getNamePoint().equals(pointName)) {
+                    if (point.getVisited() == true) {
+                        String message = pointName + " is already marked as visited";
+                        sendResponse(chatId, message);
+                        return;
+                    }
+                    point.setVisited(true);
+                    pointService.savePoint(point);
+                    String message = pointName + " marked as visited";
+                    sendResponse(chatId, message);
+                    return;
+                }
+            }
+        }
+        String message = "Can't find point " + pointName + " in your \"in-progress\" trips. Try /set_visited_state";
+        sendResponse(chatId, message);
     }
 }

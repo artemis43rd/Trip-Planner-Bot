@@ -49,6 +49,20 @@
             <version>6.1.13</version>
         </dependency>
 
+        <!-- HTTP client-->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.14</version>
+        </dependency>
+
+        <!--JSON -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20210307</version>
+        </dependency>
+
         <!-- Jackson для JSON -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
