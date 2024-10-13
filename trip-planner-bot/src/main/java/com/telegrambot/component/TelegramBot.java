@@ -1,5 +1,7 @@
 package com.telegrambot.component;
 
+import java.time.LocalDateTime;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -17,6 +19,7 @@ import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import com.telegrambot.entity.Point;
 import com.telegrambot.entity.Trip;
 import com.telegrambot.service.PointService;
 import com.telegrambot.service.TripService;
@@ -31,7 +34,7 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
 
     private final ScheduledExecutorService scheduler;
 
-    private static final int BACKGROUND_TASK_PERIOD = 3600;
+    private static final int BACKGROUND_TASK_PERIOD = 12;
 
     private final TripService tripService;
 
@@ -40,7 +43,7 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
     public TelegramBot(TelegramClient client, @Value("${bot.name}") String botName, TripService tripService, PointService pointService) {
         super(client, true, () -> botName);
         scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(this::backgroundTasks, 0, BACKGROUND_TASK_PERIOD, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(this::backgroundTasks, 0, BACKGROUND_TASK_PERIOD, TimeUnit.HOURS);
         usersChats = new ConcurrentHashMap<>();
         this.tripService = tripService;
         this.pointService = pointService;
@@ -48,7 +51,74 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
 
     private void backgroundTasks() {
         logger.info("Update background tasks.");
-        //checkForDeadlines();
+        checkForDeadlines();
+        checkTripState();
+    }
+
+    private void checkForDeadlines() {
+        List<Trip> trips = tripService.getTripsWithProgress("planned");
+        trips.addAll(tripService.getTripsWithProgress("in-progress"));
+
+        for (Trip trip : trips) {
+            List<Point> points = tripService.getPointsByTrip(trip.getNameTrip(), trip.getUser().getTelegramId());
+
+            for (Point point : points) {
+                long hoursUntilPoint = Duration.between(LocalDateTime.now(), point.getPointDate().toLocalDateTime()).toHours();
+
+                if (hoursUntilPoint <= 24 && hoursUntilPoint > 0) {
+                    Long chatId = usersChats.get(trip.getUser().getTelegramId().intValue());
+
+                    if (chatId != null) {
+                        String message = "Reminder: Less than " + hoursUntilPoint +" hours left until the point \"" 
+                                        + point.getNamePoint() + "\" in your trip \"" 
+                                        + trip.getNameTrip() + "\".";
+                        sendResponse(chatId, message);
+                    }
+                }
+            }
+        }
+    }
+
+    private void checkTripState() {
+        List<Trip> trips = tripService.getTripsWithProgress("planned");
+
+        for (Trip trip : trips) {
+            List<Point> points = tripService.getPointsByTrip(trip.getNameTrip(), trip.getUser().getTelegramId());
+            boolean hasFutureDate = false;
+
+            if (points.size() == 0) { break; }
+            for (Point point : points) {
+                if (point.getPointDate().toLocalDateTime().isAfter(LocalDateTime.now())) {
+                    hasFutureDate = true;
+                    break;
+                }
+            }
+
+            if (!hasFutureDate) {
+                trip.setProgress("in-progress");
+                tripService.saveTrip(trip);
+            }
+        }
+
+        trips = tripService.getTripsWithProgress("in-progress");
+
+        for (Trip trip : trips) {
+            List<Point> points = tripService.getPointsByTrip(trip.getNameTrip(), trip.getUser().getTelegramId());
+            boolean allPointsPast = true;
+
+            if (points.size() == 0) { break; }
+            for (Point point : points) {
+                if (point.getPointDate().toLocalDateTime().isAfter(LocalDateTime.now())) {
+                    allPointsPast = false;
+                    break;
+                }
+            }
+
+            if (allPointsPast) {
+                trip.setProgress("finished");
+                tripService.saveTrip(trip);
+            }
+        }
     }
 
     @Override

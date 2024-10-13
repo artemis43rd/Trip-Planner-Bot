@@ -24,4 +24,7 @@ public interface TripRepository extends JpaRepository<Trip, Integer> {
 
     @Query("SELECT t FROM Trip t WHERE t.nameTrip = :tripName AND t.user = :user")
     Trip findByNameAndUser(@Param("tripName") String tripName, @Param("user") User user);
+
+    @Query("SELECT t FROM Trip t WHERE t.progress = :progress")
+    List<Trip> findAllTripByProgress(@Param("progress") String progress);
 }

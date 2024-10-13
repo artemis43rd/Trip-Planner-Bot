@@ -85,4 +85,12 @@ public class TripService {
 		Trip trip = tripRepository.findByNameAndUser(tripName, user);
         return pointRepository.findAllByTripOrderByDate(trip);
     }
+
+	public List<Trip> getTripsWithProgress(String progress) {
+        return tripRepository.findAllTripByProgress(progress);
+    }
+
+	public void saveTrip(Trip trip) {
+        tripRepository.save(trip);
+    }
 }
