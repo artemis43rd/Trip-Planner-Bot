@@ -41,9 +41,12 @@ public class ShowTripDetCommand extends BotCommand {
         int res = trips.createTrip(tripName, user.getId());
         if (res == 1) {
             List<Point> points = trips.getPointsByTrip(tripName, user.getId());
+
+            builder.append("Trip: ").append(tripName);
             int counter = 1;
             for (Point point : points) {
-                builder.append("[").append(counter).append("]\nPoint: ").append(point.getNamePoint())
+                builder.append("\n[").append(counter).append("]\nPoint: ")
+                    .append(point.getNamePoint())
                     .append("\nDate: ").append(point.getPointDate())
                     .append("\nTransport: ").append(point.getTransport());
 
@@ -54,9 +57,9 @@ public class ShowTripDetCommand extends BotCommand {
 
                     builder.append("\nVisited: ");
                     if (point.getVisited()) {
-                        builder.append("✅\n\n");
+                        builder.append("✅\n");
                     } else {
-                        builder.append("❌\n\n");
+                        builder.append("❌\n");
                     }
                 counter++;
             }
