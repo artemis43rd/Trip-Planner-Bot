@@ -1,15 +1,15 @@
-# Trip-Planner-Bot
+# 🌎Trip-Planner-Bot
 
-## Dependencies
+## 📋Dependencies
  - TelegramAPI java;
  - Spring REST;
  - Spring JPA;
  - PostgreSQL;
 
-### Common features:
+### 💡Common features:
  - Use /help in the telegram bot to run it.
 
-### Features
+### 💡Features
 1. Sign up
 2. Sign in
 3. Planned trips
@@ -29,7 +29,19 @@
 
 ---
 
-## Commands and using example
+## 🚀Deploy
+
+Built app is on Docker Hub. See <https://hub.docker.com/r/artemis43rd/trip-planner-bot>.
+
+To use it, specify `services.app.image: artemis43rd/trip-planner-bot` in `docker-compose.yml` instead of `services.app.build`.
+
+```sh
+mvn package # requires `docker compose up db` to run generate maven task.
+docker compose build
+docker compose up
+```
+
+## 🎯Commands and using example
 
 ### Start page
 ![start_page.jpg](img/start_page.jpg)
@@ -141,15 +153,3 @@ If the wrong command is entered:
 If a non-command is entered:
 
 ![error2.jpg](img/error2.jpg)
-
-# Deploy
-
-Built app is on Docker Hub. See <https://hub.docker.com/r/artemis43rd/trip-planner-bot>.
-
-To use it, specify `services.app.image: artemis43rd/trip-planner-bot` in `docker-compose.yml` instead of `services.app.build`.
-
-```sh
-mvn package # requires `docker compose up db` to run generate maven task.
-docker compose build
-docker compose up
-```
