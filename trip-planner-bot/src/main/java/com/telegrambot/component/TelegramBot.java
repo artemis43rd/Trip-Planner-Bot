@@ -156,7 +156,7 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
                 double longitude = update.getMessage().getLocation().getLongitude();
 
                 // Обработка координат
-                if (handleCoordinates(chatId, latitude, longitude)) { return; }
+                handleCoordinates(chatId, latitude, longitude);
             }
 
             if (update.getMessage().hasText()) {
@@ -200,7 +200,7 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
         }
     }
 
-    private boolean handleCoordinates(Long chatId, double latitude, double longitude) {
+    private void handleCoordinates(Long chatId, double latitude, double longitude) {
         try {
             // Создаём экземпляр GeocodingService
             GeocodingService geocodingService = new GeocodingService(apiKey);
@@ -208,11 +208,9 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
 
             // Проверяем trip со статусом in-progress
             checkTripWithCoordinates(chatId, cityName);
-            return true; // Успешно обработано
 
         } catch (Exception e) {
             sendResponse(chatId, "Error processing location data. Please try again.");
-            return true;
         }
     }
 
@@ -235,16 +233,6 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
         }
     }
 
-    // Вспомогательный метод для отправки сообщения
-    private void sendResponse(Long chatId, String text) {
-        SendMessage message = new SendMessage(chatId.toString(), text);
-        try {
-            telegramClient.execute(message);
-        } catch (TelegramApiException e) {
-            logger.error("Error sending message: " + e.getMessage(), e);
-        }
-    }
-
     private void checkTripWithCoordinates(Long chatId, String pointName) {
         if (pointName == "") {
             String message = "The locality where you are located has not been found . Try /set_visited_state";
@@ -260,19 +248,26 @@ public class TelegramBot extends CommandLongPollingTelegramBot {
             for (Point point : points) {
                 if (point.getNamePoint().equals(pointName)) {
                     if (point.getVisited() == true) {
-                        String message = pointName + " is already marked as visited";
-                        sendResponse(chatId, message);
+                        sendResponse(chatId, pointName + " is already marked as visited");
                         return;
                     }
                     point.setVisited(true);
                     pointService.savePoint(point);
-                    String message = pointName + " marked as visited";
-                    sendResponse(chatId, message);
+                    sendResponse(chatId, pointName + " marked as visited");
                     return;
                 }
             }
         }
-        String message = "Can't find point " + pointName + " in your \"in-progress\" trips. Try /set_visited_state";
-        sendResponse(chatId, message);
+        sendResponse(chatId, "Can't find point \"" + pointName + "\" in your \"in-progress\" trips. Try /set_visited_state");
+    }
+
+    // Вспомогательный метод для отправки сообщения
+    private void sendResponse(Long chatId, String text) {
+        SendMessage message = new SendMessage(chatId.toString(), text);
+        try {
+            telegramClient.execute(message);
+        } catch (TelegramApiException e) {
+            logger.error("Error sending message: " + e.getMessage(), e);
+        }
     }
 }
