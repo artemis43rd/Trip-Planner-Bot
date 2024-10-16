@@ -4,9 +4,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.telegram.telegrambots.longpolling.BotSession;
 import com.telegrambot.config.DatabaseConfig;
 import com.telegrambot.config.TelegramConfig;
-import org.springframework.context.annotation.ComponentScan;
 
-@ComponentScan(basePackages = "com.telegrambot")
 public class Main {
     public static void main(String[] args) {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
